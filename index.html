@@ -1,462 +1,579 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sarawak Carbon Value Chain & Atmospheric MRV Sentinel</title>
-  
-  <!-- Tailwind CSS & FontAwesome -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sarawak Carbon Value Chain & Atmospheric MRV Sentinel Dashboard</title>
+
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Leaflet GIS CSS & JS -->
+
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- Chart.js -->
+
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 9999px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
-    #map { z-index: 10; }
+    .leaflet-popup-content-wrapper {
+      background: #0f172a;
+      color: #f1f5f9;
+      border: 1px solid #38bdf8;
+      border-radius: 8px;
+    }
+    .leaflet-popup-tip { background: #0f172a; }
   </style>
 </head>
+<body class="bg-[#070b14] text-slate-200 min-h-screen flex flex-col font-sans">
 
-<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col">
-
-  <!-- TOP APP HEADER & STATUS BAR -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3 sm:px-6">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-      
-      <!-- Brand & Project Identity -->
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-cyan-400">
-          <i class="fa-solid fa-satellite text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Sarawak CCUS Sentinel
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">LIVE MRV</span>
-          </h1>
-          <p class="text-[11px] text-slate-400">Offshore Storage & Industrial Corridor Atmospheric Verification Engine</p>
-        </div>
+  <!-- TOP HEADER -->
+  <header class="bg-[#0b1329] border-b border-slate-800 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 rounded-xl bg-sky-500/10 border border-sky-400 flex items-center justify-center font-bold text-sky-400 text-lg shadow-inner">
+        🛰️
       </div>
-
-      <!-- Live Monitoring Indicators & Scientific Link -->
-      <div class="flex flex-wrap items-center gap-2 text-xs">
-        <span class="px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Sentinel Stream: <strong class="text-white font-mono" id="livePpmHeader">418.1 ppm</strong>
-        </span>
-        <span class="px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300">
-          Threshold Cap: <strong class="text-amber-400 font-mono">430.0 ppm</strong>
-        </span>
-        
-        <!-- POINT 1: SCIENTIFIC REFERENCES LINK -->
-        <a href="references.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-full bg-sky-900/50 hover:bg-sky-800 border border-sky-400/50 text-sky-300 font-semibold transition inline-flex items-center gap-1.5 shadow-sm text-xs">
-          <i class="fa-solid fa-book-bookmark text-[11px]"></i>
-          <span>Scientific References</span>
-        </a>
+      <div>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide text-white">SARAWAK CCUS & ATMOSPHERIC MRV SENTINEL</h1>
+        <p class="text-xs text-slate-400">NASA Earth Data (OCO-2/3, Giovanni, AIRS) & World Bank Decarbonisation Ledger</p>
       </div>
-
+    </div>
+    
+    <!-- STATUS & ALARM BADGE -->
+    <div class="flex flex-wrap items-center gap-3 text-xs">
+      <div id="alarmBanner" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold transition-all duration-300">
+        <span id="alarmPulse" class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="alarmLabel">SYSTEM INTEGRITY: NORMAL (ALL NODES SECURE)</span>
+      </div>
+      <span class="px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300">
+        Threshold Cap: <strong class="text-amber-400">430.0 ppm</strong>
+      </span>
+<a href="references.html" target="_blank" class="px-3 py-1.5 rounded-full bg-sky-900/50 hover:bg-sky-800 border border-sky-400/50 text-sky-300 font-semibold transition inline-flex items-center gap-1.5 shadow-sm">
+  <span>📑</span> Scientific References
+</a>
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD CONTENT -->
-  <main class="max-w-7xl mx-auto p-4 sm:p-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-    <!-- LEFT COLUMN: GIS MAP & METOCEAN TELEMETRY (7 COLS) -->
-    <div class="lg:col-span-7 flex flex-col gap-6">
-      
-      <!-- Interactive Map Card -->
-      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
-        <div class="p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-slate-900/40">
-          <div>
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-map-location-dot text-cyan-400"></i>
-              Spatial Observation Corridor (Kasawari &ndash; Bintulu &ndash; Samalaju)
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">NASA OCO-3 SAM 15 km buffer with subsea pipeline & onshore industrial nodes</p>
-          </div>
-          <button id="btnSpikeTest" class="px-3 py-1 text-xs rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>Simulate Plume Spike</span>
-          </button>
-        </div>
-        
-        <!-- Leaflet Map Container -->
-        <div id="map" class="w-full h-[380px] bg-slate-950 relative"></div>
-
-        <!-- Map Infrastructure Legend -->
-        <div class="p-3 bg-slate-900/80 border-t border-slate-800 text-[11px] grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-            <span>Kasawari Subsea Hub</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-            <span>Bintulu Export Hub</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
-            <span>Samalaju Heavy Industry</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-4 h-0.5 bg-cyan-400"></span>
-            <span>135 km Trunkline</span>
-          </div>
-        </div>
+  <!-- KPI SUMMARY ROW -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 pt-5 pb-2">
+    <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-4 shadow-sm">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Global Baseline (NASA)</span>
+      <div class="flex items-baseline gap-2 mt-1">
+        <span id="kpiGlobalVal" class="text-2xl font-bold text-red-400">427.8</span>
+        <span class="text-xs text-slate-400">ppm</span>
       </div>
-
-      <!-- Live MetOcean Forensics Bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/70 border border-slate-800 p-4 rounded-2xl">
-        <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-          <p class="text-[10px] text-slate-400 font-medium">Bintulu Wind Speed</p>
-          <p class="text-base font-bold text-white mt-1 font-mono" id="windSpeed">8.2 kts</p>
-          <span class="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-check text-[9px]"></i> Dispersion Calm</span>
-        </div>
-        <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-          <p class="text-[10px] text-slate-400 font-medium">Wind Direction</p>
-          <p class="text-base font-bold text-white mt-1 font-mono" id="windDir">210&deg; (SSW)</p>
-          <span class="text-[10px] text-slate-400">Offshore Vector</span>
-        </div>
-        <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-          <p class="text-[10px] text-slate-400 font-medium">Surface Temperature</p>
-          <p class="text-base font-bold text-white mt-1 font-mono" id="seaTemp">29.4 &deg;C</p>
-          <span class="text-[10px] text-cyan-400">Maritime Ambient</span>
-        </div>
-        <div class="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-          <p class="text-[10px] text-slate-400 font-medium">Forensic Plume Logic</p>
-          <p class="text-xs font-semibold text-emerald-400 mt-1.5" id="forensicStatus">Nominal Marine Baseline</p>
-          <span class="text-[10px] text-slate-400">No Stack Interference</span>
-        </div>
-      </div>
-
+      <span class="text-[10px] text-red-400/80">▲ Annual Trend Rate (+2.4 ppm)</span>
     </div>
 
-    <!-- RIGHT COLUMN: ANALYTICS, TIME-SERIES & SECTORAL BENCHMARK (5 COLS) -->
-    <div class="lg:col-span-5 flex flex-col gap-6">
-
-      <!-- ATMOSPHERIC TIME SERIES (XCO2) CARD -->
-      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <h2 class="text-sm font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-cyan-400"></i>
-              Atmospheric Carbon Concentration (XCO2)
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">NASA Giovanni Multi-Scale Observations</p>
-          </div>
-          <div class="flex items-center gap-1 bg-slate-800/80 p-0.5 rounded-lg text-[10px]">
-            <button class="px-2 py-0.5 rounded bg-cyan-600 text-white font-medium">Monthly</button>
-            <button class="px-2 py-0.5 rounded text-slate-400 hover:text-white">Yearly</button>
-          </div>
-        </div>
-
-        <div class="mt-3 flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">Active Sentinel Level: <strong class="text-cyan-400" id="currentXco2">418.1 ppm</strong></span>
-          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] border border-emerald-500/30">SAFETY MARGIN OK</span>
-        </div>
-
-        <!-- Line Chart Container -->
-        <div class="relative w-full h-[220px] mt-2">
-          <canvas id="co2TrendChart"></canvas>
-        </div>
-
-        <!-- POINT 3: ATMOSPHERIC DATA SOURCES & VERIFICATION FOOTNOTE -->
-        <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] text-slate-400 space-y-2 bg-slate-950/50 p-3 rounded-xl border border-slate-800/60">
-          <div class="flex items-center justify-between">
-            <span class="font-semibold text-slate-200 flex items-center gap-1.5 text-[11px]">
-              <i class="fa-solid fa-circle-info text-sky-400"></i>
-              Data Sources & Atmospheric Verification Footnotes
-            </span>
-            <span class="text-[10px] text-emerald-400 font-mono">Calibrated Active MRV</span>
-          </div>
-          <ul class="list-disc list-inside space-y-1 text-slate-400 leading-relaxed">
-            <li>
-              <strong class="text-slate-300">Global Baseline:</strong> Empirical background concentrations referenced from the <strong>NOAA Global Monitoring Laboratory (GML)</strong> Marine Boundary Layer (MBL) observation network (~427.8 ppm reference; ~+2.4 ppm/year mean growth rate).
-            </li>
-            <li>
-              <strong class="text-slate-300">Regional Sarawak (Sink):</strong> Derived from <strong>NASA Giovanni</strong> monthly area-averaged soundings (Products: <code class="text-cyan-400">M2TMNXCHM</code> / <code class="text-cyan-400">AIRX3STM</code>) with tropical monsoon cloud-clearing algorithms.
-            </li>
-            <li>
-              <strong class="text-slate-300">Kasawari Sentinel (Offshore):</strong> Pre-injection operational baseline constrained within the 15 km target buffer via <strong>NASA OCO-2 / OCO-3 Snapshot Area Maps (SAM Mode)</strong>. Upper integrity safety threshold capped at 430.0 ppm.
-            </li>
-            <li>
-              <strong class="text-slate-300">Seasonal May Peak:</strong> Governed by the global <em>Northern Hemisphere Keeling Curve Cycle</em> (cumulative winter respiration peak prior to peak boreal summer vegetative photosynthetic drawdown).
-            </li>
-          </ul>
-        </div>
+    <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-4 shadow-sm">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sarawak Ambient (Regional Sink)</span>
+      <div class="flex items-baseline gap-2 mt-1">
+        <span id="kpiSarawakVal" class="text-2xl font-bold text-emerald-400">420.5</span>
+        <span class="text-xs text-slate-400">ppm</span>
       </div>
-
-      <!-- SECTORAL CO2 EMISSIONS & MACRO INVENTORY BENCHMARK CARD -->
-      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col">
-        
-        <!-- POINT 2 (PART A): SECTORAL EMISSIONS HEADER -->
-        <div class="mb-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-chart-pie text-cyan-400"></i>
-              <span>CO₂ Emissions by Sector in Malaysia</span>
-            </h3>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-              UNFCCC BUR4 Baseline
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">
-            Official reporting benchmark from Malaysia's 4th Biennial Update Report (BUR4) to the UNFCCC & World Bank GHG Indicators (~314.2 MT CO₂eq gross baseline).
-          </p>
-        </div>
-
-        <!-- Donut Chart & Sector Breakdown -->
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-          <div class="sm:col-span-5 relative h-[140px] flex items-center justify-center">
-            <canvas id="sectorDonutChart"></canvas>
-          </div>
-          <div class="sm:col-span-7 overflow-x-auto">
-            <table class="w-full text-left text-[11px]">
-              <tbody class="divide-y divide-slate-800/60 text-slate-300">
-                <tr>
-                  <td class="py-1 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Energy & Fuel</td>
-                  <td class="py-1 text-right font-mono text-white">51.2%</td>
-                  <td class="py-1 text-right text-slate-400">160.8 MT</td>
-                </tr>
-                <tr>
-                  <td class="py-1 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Industrial (IPPU)</td>
-                  <td class="py-1 text-right font-mono text-white">18.4%</td>
-                  <td class="py-1 text-right text-slate-400">57.8 MT</td>
-                </tr>
-                <tr>
-                  <td class="py-1 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Transport</td>
-                  <td class="py-1 text-right font-mono text-white">16.3%</td>
-                  <td class="py-1 text-right text-slate-400">51.2 MT</td>
-                </tr>
-                <tr>
-                  <td class="py-1 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Agriculture / LULUCF</td>
-                  <td class="py-1 text-right font-mono text-white">9.8%</td>
-                  <td class="py-1 text-right text-slate-400">30.8 MT</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- POINT 2 (PART B): SECTORAL AUDIT FOOTNOTE -->
-        <p class="text-[10px] text-slate-400 italic mt-2.5 pt-2 border-t border-slate-800/80 leading-relaxed">
-          *Note: Sectoral inventory represents Malaysia's latest verified national greenhouse gas reporting (UNFCCC BUR4). Energy (51.2%) and Industrial Processes (IPPU, 18.4%) account for ~70% of gross national emissions, establishing the primary macro-mitigation justification for the Kasawari-Samalaju CCUS decarbonization corridor.
-        </p>
-
-      </div>
-
+      <span class="text-[10px] text-emerald-400/80">Forest Canopy Absorption Buffer</span>
     </div>
 
+    <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-4 shadow-sm">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Kasawari Sentinel (Offshore)</span>
+      <div class="flex items-baseline gap-2 mt-1">
+        <span id="kpiKasawariVal" class="text-2xl font-bold text-sky-400">418.1</span>
+        <span class="text-xs text-slate-400">ppm</span>
+      </div>
+      <span id="kpiKasawariSub" class="text-[10px] text-sky-400/80">Offshore Marine Baseline (-2.4 ppm vs Sarawak)</span>
+    </div>
+
+    <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-4 shadow-sm">
+      <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Samalaju Sequestration Target</span>
+      <div class="flex items-baseline gap-2 mt-1">
+        <span class="text-2xl font-bold text-amber-400">3.7</span>
+        <span class="text-xs text-slate-400">MTPA CO2</span>
+      </div>
+      <span class="text-[10px] text-amber-400/80">Industrial Capture & CCU Target</span>
+    </div>
+  </section>
+
+  <!-- WEATHER BAR -->
+  <section class="px-6 py-2">
+    <div class="bg-[#0d162d]/70 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🌦️</span>
+        <span class="font-bold text-white">Bintulu & Coastal Sea MetOcean Conditions:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-4 text-slate-300">
+        <div>Surface Temp: <strong id="weatherTemp" class="text-white">29.4°C</strong></div>
+        <div>Wind: <strong id="weatherWind" class="text-sky-300">14 knots (NE - Marine Dispersion)</strong></div>
+        <div>Atmospheric Humidity: <strong id="weatherHumidity" class="text-white">82%</strong></div>
+        <div>Sea State: <strong class="text-emerald-400">Moderate (1.2m Swell)</strong></div>
+        <div>Dispersion Risk: <strong class="text-emerald-400">Nominal</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPATIAL & TIME-SERIES ROW -->
+  <main class="grid grid-cols-1 lg:grid-cols-12 gap-5 px-6 py-3">
+    
+    <!-- INTERACTIVE GIS MAP -->
+    <section class="lg:col-span-7 bg-[#0d162d] border border-slate-800 rounded-xl p-3 flex flex-col relative shadow-lg">
+      <div class="flex flex-wrap justify-between items-center mb-3 px-2 gap-2">
+        <h2 class="text-sm font-bold text-sky-400 flex items-center gap-2">
+          <span>🗺️</span> Sarawak CCUS Corridor & Injection Infrastructure
+        </h2>
+        <div class="flex items-center gap-2">
+          <button onclick="resetMapView()" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition">Focus Sarawak</button>
+          <button onclick="focusKasawari()" class="px-2.5 py-1 text-xs bg-sky-900/60 hover:bg-sky-800 text-sky-300 rounded border border-sky-700/50 transition">Focus Kasawari</button>
+          <button id="leakBtn" onclick="toggleSpikeAlarm()" class="px-2.5 py-1 text-xs bg-red-950/80 hover:bg-red-800 text-red-300 rounded border border-red-700/60 font-semibold transition">🚨 Trigger Max Spike Alarm</button>
+        </div>
+      </div>
+
+      <div id="map" class="rounded-lg z-10 w-full relative" style="height: 480px;">
+        <!-- MAP LEGEND -->
+        <div class="absolute bottom-4 right-4 z-[500] bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-lg p-3 text-[11px] shadow-lg pointer-events-auto">
+          <div class="font-bold text-white mb-1.5 border-b border-slate-700 pb-1">CCUS Infrastructure Legend</div>
+          <div class="space-y-1 text-slate-300">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block border border-white/50"></span>
+              <span>Samalaju (Capture & CCU)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block border border-white/50"></span>
+              <span>Bintulu (Compression & Export)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block border border-white/50"></span>
+              <span>Kasawari Field (Offshore Subsea Storage)</span>
+            </div>
+            <div class="flex items-center gap-2 pt-0.5">
+              <span class="w-4 border-t-2 border-dashed border-sky-400 inline-block"></span>
+              <span>Subsea Pipeline Corridor (~135 km)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full border border-sky-400 bg-sky-400/20 inline-block"></span>
+              <span>NASA OCO-3 Swath Radius (15 km)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NASA TIME-SERIES MONITOR -->
+    <section class="lg:col-span-5 bg-[#0d162d] border border-slate-800 rounded-xl p-4 flex flex-col shadow-lg">
+      <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+        <div>
+          <h3 class="text-sm font-bold text-white">Atmospheric Carbon Concentration (XCO2)</h3>
+          <p class="text-[11px] text-slate-400">NASA Giovanni Multi-Scale Observations</p>
+        </div>
+        
+        <!-- TIME BUTTONS -->
+        <div class="inline-flex rounded-lg border border-slate-700 bg-slate-900 p-0.5 text-xs">
+          <button id="btnDaily" onclick="setTimeframe('daily')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">Daily</button>
+          <button id="btnMonthly" onclick="setTimeframe('monthly')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">Monthly</button>
+          <button id="btnYearly" onclick="setTimeframe('yearly')" class="px-2.5 py-1 rounded-md bg-sky-600 text-white font-semibold transition">Yearly</button>
+        </div>
+      </div>
+
+      <!-- SPIKE THRESHOLD INDICATOR BAR -->
+      <div class="mb-3 bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Active Sentinel Level:</span>
+          <strong id="sentinelLevelDisplay" class="text-sky-400 font-mono">418.1 ppm</strong>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-24 bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+            <div id="thresholdBar" class="bg-emerald-400 h-full transition-all duration-500" style="width: 72%;"></div>
+          </div>
+          <span id="thresholdStatusText" class="text-[10px] text-emerald-400 font-bold">SAFETY MARGIN OK</span>
+        </div>
+      </div>
+
+      <div class="relative w-full" style="height: 380px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </section>
   </main>
 
-  <!-- JAVASCRIPT LOGIC & ENGINE -->
+  <!-- WORLD BANK MALAYSIA SECTOR BREAKDOWN -->
+  <section class="px-6 py-4">
+    <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-5 shadow-lg">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>📊</span> National Emissions Profile by Economic Sector (World Bank / Climate Watch Data)
+          </h2>
+          <p class="text-xs text-slate-400">Contextual benchmark for Sarawak CCUS decarbonisation contribution</p>
+        </div>
+        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
+          Source: World Bank Development Indicators & GHG Inventory
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- DONUT CHART -->
+        <div class="lg:col-span-5 flex flex-col items-center justify-center">
+          <div class="relative w-full max-w-[280px]" style="height: 260px;">
+            <canvas id="sectorDonutChart"></canvas>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-2">Total National Emissions Baseline: ~314.2 MT CO2eq</span>
+        </div>
+
+        <!-- SECTOR METRIC TABLE -->
+        <div class="lg:col-span-7 overflow-x-auto">
+          <table class="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
+            <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold border-b border-slate-800">
+              <tr>
+                <th class="p-3">Economic Sector</th>
+                <th class="p-3">Share (%)</th>
+                <th class="p-3">Volume (MT CO2eq)</th>
+                <th class="p-3">Sarawak CCUS Mitigation Pathway</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span> Energy & Fuel Combustion
+                </td>
+                <td class="p-3 font-mono">51.2%</td>
+                <td class="p-3 font-mono">160.8</td>
+                <td class="p-3 text-sky-300">Bintulu LNG turbine decarbonisation</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Industrial Processes (IPPU)
+                </td>
+                <td class="p-3 font-mono">18.4%</td>
+                <td class="p-3 font-mono">57.8</td>
+                <td class="p-3 text-sky-300">Direct CCU capture at Samalaju smelters</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> Transportation
+                </td>
+                <td class="p-3 font-mono">16.3%</td>
+                <td class="p-3 font-mono">51.2</td>
+                <td class="p-3 text-slate-400">Hydrogen/Biofuel corridor integration</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Agriculture & Land Use
+                </td>
+                <td class="p-3 font-mono">9.8%</td>
+                <td class="p-3 font-mono">30.8</td>
+                <td class="p-3 text-slate-400">Sarawak Peatland preservation sink</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> Buildings & Commercial
+                </td>
+                <td class="p-3 font-mono">4.3%</td>
+                <td class="p-3 font-mono">13.6</td>
+                <td class="p-3 text-slate-400">Grid electrification via Bakun/Murum Hydro</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. INITIALIZE LEAFLET MAP
-    const map = L.map('map', {
-      zoomControl: true,
-      attributionControl: false
-    }).setView([3.85, 112.5], 7);
+    var map, trendChart, sectorDonutChart, kasawariBufferCircle, kasawariMarker;
+    var isAlarmActive = false;
+    var currentTimeframe = "yearly";
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 17
-    }).addTo(map);
-
-    // Load Sarawak GeoJSON Boundary
-    fetch('sarawak.geojson')
-      .then(res => res.json())
-      .then(geoData => {
-        L.geoJSON(geoData, {
-          style: {
-            color: '#06b6d4',
-            weight: 1.5,
-            fillColor: '#0891b2',
-            fillOpacity: 0.1
-          }
-        }).addTo(map);
-      })
-      .catch(err => console.log('Boundary GeoJSON loaded in background'));
-
-    // Key Infrastructure Coordinates
-    const coords = {
-      kasawari: [4.75, 112.98],
-      bintulu: [3.20, 113.07],
-      samalaju: [3.58, 113.35]
+    var timeSeriesData = {
+      yearly: {
+        labels: ["2020", "2021", "2022", "2023", "2024", "2025", "2026"],
+        global: [414.2, 416.4, 418.6, 421.1, 424.5, 426.3, 427.8],
+        malaysia: [411.5, 413.6, 415.8, 418.2, 421.0, 422.6, 423.8],
+        sarawak: [408.9, 411.0, 413.1, 415.4, 418.0, 419.4, 420.5],
+        kasawari: [null, null, null, 417.5, 417.9, 418.0, 418.1]
+      },
+      monthly: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        global: [425.2, 425.8, 426.5, 427.9, 428.4, 427.5, 426.1, 425.8, 426.4, 427.0, 427.5, 427.8],
+        malaysia: [421.5, 422.1, 422.8, 423.9, 424.1, 423.2, 422.6, 422.9, 423.1, 423.5, 423.7, 423.8],
+        sarawak: [418.2, 418.9, 419.5, 420.8, 421.2, 420.1, 419.3, 419.7, 420.0, 420.3, 420.4, 420.5],
+        kasawari: [417.8, 417.9, 418.0, 418.2, 418.3, 418.1, 417.9, 418.0, 418.0, 418.1, 418.1, 418.1]
+      },
+      daily: {
+        labels: ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25", "Day 30"],
+        global: [427.6, 427.7, 427.9, 427.8, 427.7, 427.9, 427.8],
+        malaysia: [423.6, 423.7, 423.9, 423.8, 423.7, 423.8, 423.8],
+        sarawak: [420.3, 420.4, 420.6, 420.5, 420.4, 420.5, 420.5],
+        kasawari: [418.0, 418.1, 418.2, 418.1, 418.0, 418.1, 418.1]
+      }
     };
 
-    // Subsea Pipeline Trunkline (Kasawari to Bintulu)
-    L.polyline([coords.kasawari, coords.bintulu], {
-      color: '#22d3ee',
-      weight: 3,
-      dashArray: '6, 6',
-      opacity: 0.8
-    }).addTo(map).bindPopup('<strong>Subsea CO₂ Export Pipeline</strong><br>135 km trunkline from onshore compression to subsea reservoir');
+    var samalajuCoord = [3.5700, 113.3550];
+    var bintuluCoord  = [3.2750, 113.0750];
+    var kasawariCoord = [4.1500, 112.9800];
 
-    // Kasawari 15km OCO-3 SAM Swath Perimeter
-    const kasawariCircle = L.circle(coords.kasawari, {
-      radius: 15000,
-      color: '#06b6d4',
-      fillColor: '#0891b2',
-      fillOpacity: 0.25,
-      weight: 1.5
-    }).addTo(map).bindPopup('<strong>Kasawari Subsea Carbon Storage</strong><br>Capacity: 3.3 - 3.7 MTPA<br>15 km High-Precision MRV Swath');
+    window.resetMapView = function () {
+      if (map) map.setView([3.6, 113.2], 8);
+    };
 
-    // Onshore Industrial Nodes
-    L.circleMarker(coords.bintulu, {
-      radius: 7,
-      color: '#f59e0b',
-      fillColor: '#d97706',
-      fillOpacity: 0.9
-    }).addTo(map).bindPopup('<strong>Bintulu LNG & Compression Hub</strong><br>Central export node');
+    window.focusKasawari = function () {
+      if (map && kasawariMarker) {
+        map.flyTo(kasawariCoord, 10, { duration: 1.5 });
+        setTimeout(function () { kasawariMarker.openPopup(); }, 1600);
+      }
+    };
 
-    L.circleMarker(coords.samalaju, {
-      radius: 7,
-      color: '#c084fc',
-      fillColor: '#9333ea',
-      fillOpacity: 0.9
-    }).addTo(map).bindPopup('<strong>Samalaju Heavy Industrial Park</strong><br>High-density capture candidate');
-
-    // 2. ATMOSPHERIC XCO2 TREND CHART (CHART.JS)
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const ctxTrend = document.getElementById('co2TrendChart').getContext('2d');
-    
-    const co2TrendChart = new Chart(ctxTrend, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [
-          {
-            label: 'Global Baseline (NOAA GML)',
-            data: [425.2, 425.6, 426.1, 426.8, 427.8, 426.9, 425.4, 424.1, 423.8, 424.2, 424.8, 425.3],
-            borderColor: '#f43f5e',
-            borderDash: [4, 4],
-            borderWidth: 2,
-            pointRadius: 2,
-            fill: false
-          },
-          {
-            label: 'Malaysia Average (AIRS)',
-            data: [421.1, 421.3, 421.8, 422.4, 422.9, 422.2, 421.4, 420.8, 420.6, 420.9, 421.0, 421.2],
-            borderColor: '#eab308',
-            borderWidth: 2,
-            pointRadius: 2,
-            fill: false
-          },
-          {
-            label: 'Sarawak Ambient Sink',
-            data: [417.8, 417.9, 418.2, 418.7, 419.2, 418.6, 417.9, 417.5, 417.3, 417.6, 417.7, 417.8],
-            borderColor: '#10b981',
-            borderWidth: 2,
-            pointRadius: 2,
-            fill: false
-          },
-          {
-            label: 'Kasawari Sentinel (Offshore)',
-            data: [417.4, 417.5, 417.8, 418.3, 418.9, 418.2, 417.6, 417.1, 416.9, 417.2, 417.3, 417.4],
-            borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6, 182, 212, 0.1)',
-            borderWidth: 2.5,
-            pointRadius: 3,
-            fill: true
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } }
-          }
-        },
-        scales: {
-          y: {
-            min: 410,
-            max: 432,
-            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-            ticks: { color: '#94a3b8', font: { size: 10 } }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: '#94a3b8', font: { size: 10 } }
+    window.setTimeframe = function (tf) {
+      currentTimeframe = tf;
+      var buttons = ["Daily", "Monthly", "Yearly"];
+      for (var i = 0; i < buttons.length; i++) {
+        var name = buttons[i];
+        var btn = document.getElementById("btn" + name);
+        if (btn) {
+          if (name.toLowerCase() === tf) {
+            btn.className = "px-2.5 py-1 rounded-md bg-sky-600 text-white font-semibold transition";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
           }
         }
       }
-    });
 
-    // 3. SECTORAL DONUT CHART (CHART.JS)
-    const ctxDonut = document.getElementById('sectorDonutChart').getContext('2d');
-    new Chart(ctxDonut, {
-      type: 'doughnut',
-      data: {
-        labels: ['Energy & Fuel', 'IPPU', 'Transport', 'Agriculture/LULUCF'],
-        datasets: [{
-          data: [51.2, 18.4, 16.3, 9.8],
-          backgroundColor: ['#f43f5e', '#06b6d4', '#f59e0b', '#10b981'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        plugins: {
-          legend: { display: false }
+      if (trendChart) {
+        trendChart.data.labels = timeSeriesData[tf].labels;
+        trendChart.data.datasets[0].data = timeSeriesData[tf].global;
+        trendChart.data.datasets[1].data = timeSeriesData[tf].malaysia;
+        trendChart.data.datasets[2].data = timeSeriesData[tf].sarawak;
+        trendChart.data.datasets[3].data = timeSeriesData[tf].kasawari.slice();
+
+        if (isAlarmActive) {
+          var lastIdx = trendChart.data.datasets[3].data.length - 1;
+          trendChart.data.datasets[3].data[lastIdx] = 434.5;
         }
+        trendChart.update();
       }
-    });
+    };
 
-    // 4. SPIKE TEST SIMULATION INTERACTION
-    let isSpiked = false;
-    document.getElementById('btnSpikeTest').addEventListener('click', () => {
-      isSpiked = !isSpiked;
-      const btn = document.getElementById('btnSpikeTest');
-      const headerPpm = document.getElementById('livePpmHeader');
-      const currentPpm = document.getElementById('currentXco2');
-      const forensicTxt = document.getElementById('forensicStatus');
+    window.toggleSpikeAlarm = function () {
+      var banner = document.getElementById("alarmBanner");
+      var pulse = document.getElementById("alarmPulse");
+      var label = document.getElementById("alarmLabel");
+      var btn = document.getElementById("leakBtn");
+      var bar = document.getElementById("thresholdBar");
+      var statusText = document.getElementById("thresholdStatusText");
+      var kpiVal = document.getElementById("kpiKasawariVal");
+      var kpiSub = document.getElementById("kpiKasawariSub");
+      var sentinelDisplay = document.getElementById("sentinelLevelDisplay");
 
-      if (isSpiked) {
-        btn.classList.replace('bg-rose-950/60', 'bg-rose-600');
-        btn.innerHTML = '<i class="fa-solid fa-arrows-rotate animate-spin"></i> Revert Nominal State';
-        
-        kasawariCircle.setStyle({ color: '#f43f5e', fillColor: '#ef4444', fillOpacity: 0.5 });
-        headerPpm.innerText = '434.8 ppm';
-        headerPpm.className = 'text-rose-400 font-mono font-bold animate-pulse';
-        currentPpm.innerText = '434.8 ppm (ALERT)';
-        currentPpm.className = 'text-rose-400 font-bold';
-        
-        forensicTxt.innerText = 'Containment Anomaly Detected (>430 ppm)';
-        forensicTxt.className = 'text-xs font-semibold text-rose-400 mt-1.5';
+      if (!isAlarmActive) {
+        banner.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500 text-red-400 font-bold transition-all duration-300";
+        pulse.className = "h-2.5 w-2.5 rounded-full bg-red-500 animate-ping";
+        label.innerText = "CRITICAL ALERT: SPIKE EXCEEDS THRESHOLD (434.5 PPM)";
+        btn.innerText = "🔄 Reset System Baseline";
+        btn.className = "px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition";
 
-        // Update Kasawari series peak in chart
-        co2TrendChart.data.datasets[3].data[4] = 434.8;
-        co2TrendChart.update();
+        kpiVal.innerText = "434.5";
+        kpiVal.className = "text-2xl font-bold text-red-400 animate-pulse";
+        kpiSub.innerText = "⚠️ Spike Breach: +16.4 ppm above baseline";
+        kpiSub.className = "text-[10px] text-red-400 font-semibold";
+        sentinelDisplay.innerText = "434.5 ppm";
+        sentinelDisplay.className = "text-red-400 font-mono font-bold animate-pulse";
+
+        bar.style.width = "98%";
+        bar.className = "bg-red-500 h-full transition-all duration-500";
+        statusText.innerText = "CAP EXCEEDED (> 430.0)";
+        statusText.className = "text-[10px] text-red-400 font-bold animate-pulse";
+
+        if (kasawariBufferCircle) {
+          kasawariBufferCircle.setStyle({ color: "#ef4444", fillColor: "#ef4444", fillOpacity: 0.4 });
+        }
+
+        if (trendChart) {
+          var lastIdx = trendChart.data.datasets[3].data.length - 1;
+          trendChart.data.datasets[3].data[lastIdx] = 434.5;
+          trendChart.data.datasets[3].borderColor = "#ef4444";
+          trendChart.data.datasets[3].backgroundColor = "rgba(239, 68, 68, 0.25)";
+          trendChart.data.datasets[3].pointBackgroundColor = "#ef4444";
+          trendChart.update();
+        }
+
+        isAlarmActive = true;
       } else {
-        btn.classList.replace('bg-rose-600', 'bg-rose-950/60');
-        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Simulate Plume Spike';
-        
-        kasawariCircle.setStyle({ color: '#06b6d4', fillColor: '#0891b2', fillOpacity: 0.25 });
-        headerPpm.innerText = '418.1 ppm';
-        headerPpm.className = 'text-white font-mono';
-        currentPpm.innerText = '418.1 ppm';
-        currentPpm.className = 'text-cyan-400';
-        
-        forensicTxt.innerText = 'Nominal Marine Baseline';
-        forensicTxt.className = 'text-xs font-semibold text-emerald-400 mt-1.5';
+        banner.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold transition-all duration-300";
+        pulse.className = "h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse";
+        label.innerText = "SYSTEM INTEGRITY: NORMAL (ALL NODES SECURE)";
+        btn.innerText = "🚨 Trigger Max Spike Alarm";
+        btn.className = "px-2.5 py-1 text-xs bg-red-950/80 hover:bg-red-800 text-red-300 rounded border border-red-700/60 font-semibold transition";
 
-        // Revert Kasawari series
-        co2TrendChart.data.datasets[3].data[4] = 418.9;
-        co2TrendChart.update();
+        kpiVal.innerText = "418.1";
+        kpiVal.className = "text-2xl font-bold text-sky-400";
+        kpiSub.innerText = "Offshore Marine Baseline (-2.4 ppm vs Sarawak)";
+        kpiSub.className = "text-[10px] text-sky-400/80";
+        sentinelDisplay.innerText = "418.1 ppm";
+        sentinelDisplay.className = "text-sky-400 font-mono";
+
+        bar.style.width = "72%";
+        bar.className = "bg-emerald-400 h-full transition-all duration-500";
+        statusText.innerText = "SAFETY MARGIN OK";
+        statusText.className = "text-[10px] text-emerald-400 font-bold";
+
+        if (kasawariBufferCircle) {
+          kasawariBufferCircle.setStyle({ color: "#38bdf8", fillColor: "#38bdf8", fillOpacity: 0.15 });
+        }
+
+        window.setTimeframe(currentTimeframe);
+        if (trendChart) {
+          trendChart.data.datasets[3].borderColor = "#38bdf8";
+          trendChart.data.datasets[3].backgroundColor = "rgba(56, 189, 248, 0.12)";
+          trendChart.data.datasets[3].pointBackgroundColor = "#0284c7";
+          trendChart.update();
+        }
+
+        isAlarmActive = false;
       }
+    };
+
+    window.addEventListener("DOMContentLoaded", function () {
+      // 1. INIT LEAFLET MAP
+      map = L.map("map").setView([3.6, 113.2], 8);
+
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; NASA, USGS",
+        maxZoom: 18
+      }).addTo(map);
+
+      // Sempadan Sarawak
+      fetch("sarawak.geojson")
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          L.geoJSON(data, {
+            style: { color: "#38bdf8", weight: 1.5, fillColor: "#0284c7", fillOpacity: 0.12 }
+          }).addTo(map);
+        })
+        .catch(function () {
+          console.log("sarawak.geojson dimuatkan terus.");
+        });
+
+      // Pipeline Route
+      L.polyline([samalajuCoord, bintuluCoord, kasawariCoord], {
+        color: "#38bdf8",
+        weight: 2,
+        dashArray: "6, 8",
+        opacity: 0.85
+      }).addTo(map);
+
+      // Kasawari Swath Buffer
+      kasawariBufferCircle = L.circle(kasawariCoord, {
+        radius: 15000,
+        color: "#38bdf8",
+        fillColor: "#38bdf8",
+        fillOpacity: 0.15,
+        weight: 1.5
+      }).addTo(map);
+
+      // Markers
+      L.circleMarker(samalajuCoord, { radius: 8, color: "#fff", weight: 2, fillColor: "#ef4444", fillOpacity: 1 })
+        .addTo(map).bindPopup("<b>1. Samalaju Industrial Park</b><br/>Role: Capture & CCU<br/>Target: 3.7 MTPA");
+
+      L.circleMarker(bintuluCoord, { radius: 8, color: "#fff", weight: 2, fillColor: "#f59e0b", fillOpacity: 1 })
+        .addTo(map).bindPopup("<b>2. Bintulu Port Hub</b><br/>Role: Compression & Logistics");
+
+      kasawariMarker = L.circleMarker(kasawariCoord, { radius: 9, color: "#fff", weight: 2, fillColor: "#0ea5e9", fillOpacity: 1 })
+        .addTo(map).bindPopup("<b>3. Kasawari CCS Field</b><br/>Role: Offshore Storage (~3,000m)<br/>Status: Nominal");
+
+      // 2. INIT TREND CHART
+      var trendEl = document.getElementById("trendChart");
+      if (trendEl) {
+        trendChart = new Chart(trendEl.getContext("2d"), {
+          type: "line",
+          data: {
+            labels: timeSeriesData.yearly.labels,
+            datasets: [
+              {
+                label: "Global Baseline",
+                data: timeSeriesData.yearly.global,
+                borderColor: "#f87171",
+                borderWidth: 2,
+                borderDash: [4, 4],
+                pointRadius: 3
+              },
+              {
+                label: "Malaysia Average",
+                data: timeSeriesData.yearly.malaysia,
+                borderColor: "#facc15",
+                borderWidth: 2,
+                pointRadius: 3
+              },
+              {
+                label: "Sarawak Ambient (Sink)",
+                data: timeSeriesData.yearly.sarawak,
+                borderColor: "#34d399",
+                borderWidth: 2.5,
+                pointRadius: 3
+              },
+              {
+                label: "Kasawari Sentinel (Offshore)",
+                data: timeSeriesData.yearly.kasawari,
+                borderColor: "#38bdf8",
+                backgroundColor: "rgba(56, 189, 248, 0.12)",
+                fill: true,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: "#0284c7"
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              legend: { position: "top", labels: { color: "#94a3b8", boxWidth: 10, font: { size: 10 } } }
+            },
+            scales: {
+              y: { min: 405, max: 438, grid: { color: "rgba(255, 255, 255, 0.05)" }, ticks: { color: "#94a3b8" } },
+              x: { grid: { color: "rgba(255, 255, 255, 0.05)" }, ticks: { color: "#94a3b8" } }
+            }
+          }
+        });
+      }
+
+      // 3. INIT SECTOR DONUT CHART
+      var donutEl = document.getElementById("sectorDonutChart");
+      if (donutEl) {
+        sectorDonutChart = new Chart(donutEl.getContext("2d"), {
+          type: "doughnut",
+          data: {
+            labels: ["Energy & Combustion", "Industrial IPPU", "Transportation", "Agriculture", "Buildings"],
+            datasets: [{
+              data: [51.2, 18.4, 16.3, 9.8, 4.3],
+              backgroundColor: ["#f87171", "#fbbf24", "#60a5fa", "#34d399", "#c084fc"],
+              borderWidth: 1,
+              borderColor: "#070b14"
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom", labels: { color: "#94a3b8", boxWidth: 10, font: { size: 9 } } }
+            },
+            cutout: "68%"
+          }
+        });
+      }
+
+      // 4. FETCH LIVE METOCEAN WEATHER
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=3.2750&longitude=113.0750&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m")
+        .then(function(res) { return res.json(); })
+        .then(function(wData) {
+          if (wData && wData.current) {
+            var cur = wData.current;
+            var wSpeed = (cur.wind_speed_10m * 0.539957).toFixed(1);
+            document.getElementById("weatherTemp").innerText = cur.temperature_2m + "°C";
+            document.getElementById("weatherWind").innerText = wSpeed + " knots (" + cur.wind_direction_10m + "° NE)";
+            document.getElementById("weatherHumidity").innerText = cur.relative_humidity_2m + "%";
+          }
+        })
+        .catch(function() {
+          console.log("Default fallback weather active.");
+        });
     });
   </script>
 </body>
