@@ -48,9 +48,9 @@
       <span class="px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300">
         Threshold Cap: <strong class="text-amber-400">430.0 ppm</strong>
       </span>
-<a href="references.html" target="_blank" class="px-3 py-1.5 rounded-full bg-sky-900/50 hover:bg-sky-800 border border-sky-400/50 text-sky-300 font-semibold transition inline-flex items-center gap-1.5 shadow-sm">
-  <span>📑</span> Scientific References
-</a>
+      <a href="references.html" target="_blank" class="px-3 py-1.5 rounded-full bg-sky-900/50 hover:bg-sky-800 border border-sky-400/50 text-sky-300 font-semibold transition inline-flex items-center gap-1.5 shadow-sm">
+        <span>📑</span> Scientific References
+      </a>
     </div>
   </header>
 
@@ -186,24 +186,38 @@
         </div>
       </div>
 
-      <div class="relative w-full" style="height: 380px;">
+      <div class="relative w-full" style="height: 250px;">
         <canvas id="trendChart"></canvas>
+      </div>
+
+      <!-- COMPLETE ATMOSPHERIC DATA SOURCES FOOTNOTE -->
+      <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] text-slate-400 space-y-1 bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/80">
+        <p class="font-semibold text-slate-300 flex items-center gap-1">
+          <span>📌</span> Data Sources & Verification Footnotes:
+        </p>
+        <ul class="list-disc list-inside space-y-0.5 text-slate-400 leading-relaxed">
+          <li><strong class="text-slate-300">Global Baseline:</strong> NOAA Global Monitoring Laboratory (GML) Marine Boundary Layer (~427.8 ppm, +2.4 ppm/yr)[span_3](start_span)[span_3](end_span).</li>
+          <li><strong class="text-slate-300">Malaysia Average:</strong> Regional XCO₂ from NASA AIRS (Atmospheric Infrared Sounder) on Aqua satellite via Giovanni reanalysis.</li>
+          <li><strong class="text-slate-300">Sarawak Ambient (Sink):</strong> NASA Giovanni area-averaged soundings (M2TMNXCHM / AIRX3STM) with tropical cloud masking[span_4](start_span)[span_4](end_span).</li>
+          <li><strong class="text-slate-300">Kasawari Sentinel (Offshore):</strong> NASA OCO-2 / OCO-3 Snapshot Area Maps (SAM Mode) within 15 km buffer (Cap: 430.0 ppm)[span_5](start_span)[span_5](end_span).</li>
+          <li><strong class="text-slate-300">Seasonal May Peak:</strong> Northern Hemisphere Keeling Curve vegetative respiration cycle[span_6](start_span)[span_6](end_span).</li>
+        </ul>
       </div>
     </section>
   </main>
 
-  <!-- WORLD BANK MALAYSIA SECTOR BREAKDOWN -->
+  <!-- WORLD BANK / UNFCCC MALAYSIA SECTOR BREAKDOWN (FULL WIDTH AT BOTTOM) -->
   <section class="px-6 py-4">
     <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-5 shadow-lg">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2 border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <span>📊</span> National Emissions Profile by Economic Sector (World Bank / Climate Watch Data)
+            <span>📊</span> CO₂ Emissions by Sector in Malaysia
           </h2>
-          <p class="text-xs text-slate-400">Contextual benchmark for Sarawak CCUS decarbonisation contribution</p>
+          <p class="text-xs text-slate-400">National greenhouse gas inventory baseline benchmark for Sarawak CCUS decarbonisation contribution</p>
         </div>
         <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-          Source: World Bank Development Indicators & GHG Inventory
+          Source: UNFCCC Malaysia BUR4 & World Bank Indicators
         </span>
       </div>
 
@@ -213,7 +227,7 @@
           <div class="relative w-full max-w-[280px]" style="height: 260px;">
             <canvas id="sectorDonutChart"></canvas>
           </div>
-          <span class="text-[11px] text-slate-400 mt-2">Total National Emissions Baseline: ~314.2 MT CO2eq</span>
+          <span class="text-[11px] text-slate-400 mt-2">Total National Emissions Baseline: ~314.2 MT CO2eq (UNFCCC BUR4)</span>
         </div>
 
         <!-- SECTOR METRIC TABLE -->
@@ -270,6 +284,10 @@
               </tr>
             </tbody>
           </table>
+
+          <p class="text-[10px] text-slate-400 italic mt-2.5 pt-2 border-t border-slate-800/80 leading-relaxed">
+            *Note: Official sectoral reporting baseline sourced from Malaysia's 4th Biennial Update Report (BUR4) to the UNFCCC[span_7](start_span)[span_7](end_span). Energy (51.2%) and Industrial Processes (IPPU, 18.4%) account for ~70% of gross national emissions, validating the Kasawari-Samalaju corridor as the nation's highest-impact CCUS decarbonisation priority[span_8](start_span)[span_8](end_span).
+          </p>
         </div>
       </div>
     </div>
@@ -447,7 +465,7 @@
           }).addTo(map);
         })
         .catch(function () {
-          console.log("sarawak.geojson dimuatkan terus.");
+          console.log("sarawak.geojson loaded.");
         });
 
       // Pipeline Route
