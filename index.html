@@ -206,39 +206,39 @@
     </section>
   </main>
 
-  <!-- WORLD BANK / UNFCCC MALAYSIA SECTOR BREAKDOWN (FULL WIDTH AT BOTTOM) -->
+  <!-- SECTORAL CO2 EMISSIONS BREAKDOWN (PURE CO2 ONLY) -->
   <section class="px-6 py-4">
     <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-5 shadow-lg">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2 border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <span>📊</span> CO₂ Emissions by Sector in Malaysia
+            <span>📊</span> Pure CO₂ Emissions by Economic Sector (2019 Cumulative Baseline)
           </h2>
-          <p class="text-xs text-slate-400">National greenhouse gas inventory baseline benchmark for Sarawak CCUS decarbonisation contribution</p>
+          <p class="text-xs text-slate-400">Excludes non-CO₂ greenhouse gases (CH₄, N₂O) to isolate carbon capture mitigation targets for Sarawak CCUS</p>
         </div>
         <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-          Source: UNFCCC Malaysia BUR4 & World Bank Indicators
+          Source: UNFCCC BUR4 & World Bank (Annual Cumulative: ~269.5 MT CO₂)
         </span>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        <!-- DONUT CHART -->
+        <!-- DONUT CHART (PURE CO2 SHARE) -->
         <div class="lg:col-span-5 flex flex-col items-center justify-center">
-          <div class="relative w-full max-w-[280px]" style="height: 260px;">
+          <div class="relative w-full max-w-[280px]" style="height: 250px;">
             <canvas id="sectorDonutChart"></canvas>
           </div>
-          <span class="text-[11px] text-slate-400 mt-2">Total National Emissions Baseline: ~314.2 MT CO2eq (UNFCCC BUR4)</span>
+          <span class="text-[11px] text-slate-400 mt-2 font-mono">Total Pure CO₂ Volume (2019): ~269.5 MT CO₂</span>
         </div>
 
-        <!-- SECTOR METRIC TABLE -->
+        <!-- SECTOR METRIC TABLE (PURE CO2 VOLUMES) -->
         <div class="lg:col-span-7 overflow-x-auto">
           <table class="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
             <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold border-b border-slate-800">
               <tr>
                 <th class="p-3">Economic Sector</th>
-                <th class="p-3">Share (%)</th>
-                <th class="p-3">Volume (MT CO2eq)</th>
-                <th class="p-3">Sarawak CCUS Mitigation Pathway</th>
+                <th class="p-3">CO₂ Share (%)</th>
+                <th class="p-3">Pure CO₂ Volume (MT CO₂)</th>
+                <th class="p-3">CCUS Abatement Strategy</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/60 text-slate-300">
@@ -246,47 +246,47 @@
                 <td class="p-3 font-semibold text-white flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span> Energy & Fuel Combustion
                 </td>
-                <td class="p-3 font-mono">51.2%</td>
-                <td class="p-3 font-mono">160.8</td>
-                <td class="p-3 text-sky-300">Bintulu LNG turbine decarbonisation</td>
+                <td class="p-3 font-mono">57.2%</td>
+                <td class="p-3 font-mono text-cyan-400">154.2</td>
+                <td class="p-3 text-sky-300">Bintulu LNG turbine point-source capture</td>
               </tr>
               <tr class="hover:bg-slate-800/30">
                 <td class="p-3 font-semibold text-white flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Industrial Processes (IPPU)
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Transportation
+                </td>
+                <td class="p-3 font-mono">18.7%</td>
+                <td class="p-3 font-mono text-cyan-400">50.4</td>
+                <td class="p-3 text-slate-400">Hydrogen / synthetic fuel substitution</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> Industrial Processes (IPPU)
                 </td>
                 <td class="p-3 font-mono">18.4%</td>
-                <td class="p-3 font-mono">57.8</td>
-                <td class="p-3 text-sky-300">Direct CCU capture at Samalaju smelters</td>
-              </tr>
-              <tr class="hover:bg-slate-800/30">
-                <td class="p-3 font-semibold text-white flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> Transportation
-                </td>
-                <td class="p-3 font-mono">16.3%</td>
-                <td class="p-3 font-mono">51.2</td>
-                <td class="p-3 text-slate-400">Hydrogen/Biofuel corridor integration</td>
-              </tr>
-              <tr class="hover:bg-slate-800/30">
-                <td class="p-3 font-semibold text-white flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Agriculture & Land Use
-                </td>
-                <td class="p-3 font-mono">9.8%</td>
-                <td class="p-3 font-mono">30.8</td>
-                <td class="p-3 text-slate-400">Sarawak Peatland preservation sink</td>
+                <td class="p-3 font-mono text-cyan-400">49.6</td>
+                <td class="p-3 text-sky-300">Direct mineralisation & Samalaju smelter CCU</td>
               </tr>
               <tr class="hover:bg-slate-800/30">
                 <td class="p-3 font-semibold text-white flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span> Buildings & Commercial
                 </td>
-                <td class="p-3 font-mono">4.3%</td>
-                <td class="p-3 font-mono">13.6</td>
-                <td class="p-3 text-slate-400">Grid electrification via Bakun/Murum Hydro</td>
+                <td class="p-3 font-mono">4.9%</td>
+                <td class="p-3 font-mono text-cyan-400">13.2</td>
+                <td class="p-3 text-slate-400">Hydro grid electrification</td>
+              </tr>
+              <tr class="hover:bg-slate-800/30">
+                <td class="p-3 font-semibold text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Agriculture & Forestry
+                </td>
+                <td class="p-3 font-mono">0.8%</td>
+                <td class="p-3 font-mono text-cyan-400">2.1</td>
+                <td class="p-3 text-slate-400">Peatland soil preservation sink</td>
               </tr>
             </tbody>
           </table>
 
           <p class="text-[10px] text-slate-400 italic mt-2.5 pt-2 border-t border-slate-800/80 leading-relaxed">
-            *Note: Official sectoral reporting baseline sourced from Malaysia's 4th Biennial Update Report (BUR4) to the UNFCCC[span_7]. Energy (51.2%) and Industrial Processes (IPPU, 18.4%) account for ~70% of gross national emissions, validating the Kasawari-Samalaju corridor as the nation's highest-impact CCUS decarbonisation priority.
+            *Note: Values isolate pure carbon dioxide (<math class="text-cyan-400">CO₂</math>) emissions from the 2019 National GHG Inventory (UNFCCC BUR4 / World Bank), excluding non-CO₂ gases (methane & nitrous oxide). Energy and Industrial Point Sources produce ~75.6% of pure CO₂, establishing the direct operational capture mandate for the Kasawari offshore reservoir.
           </p>
         </div>
       </div>
@@ -552,16 +552,22 @@
         });
       }
 
-      // 3. INIT SECTOR DONUT CHART
+      // 3. INIT SECTOR DONUT CHART (PURE CO2 DATA)
       var donutEl = document.getElementById("sectorDonutChart");
       if (donutEl) {
         sectorDonutChart = new Chart(donutEl.getContext("2d"), {
           type: "doughnut",
           data: {
-            labels: ["Energy & Combustion", "Industrial IPPU", "Transportation", "Agriculture", "Buildings"],
+            labels: [
+              "Energy & Combustion (154.2 MT)",
+              "Transportation (50.4 MT)",
+              "Industrial IPPU (49.6 MT)",
+              "Buildings & Commercial (13.2 MT)",
+              "Agriculture & Forestry (2.1 MT)"
+            ],
             datasets: [{
-              data: [51.2, 18.4, 16.3, 9.8, 4.3],
-              backgroundColor: ["#f87171", "#fbbf24", "#60a5fa", "#34d399", "#c084fc"],
+              data: [154.2, 50.4, 49.6, 13.2, 2.1],
+              backgroundColor: ["#f87171", "#fbbf24", "#60a5fa", "#c084fc", "#34d399"],
               borderWidth: 1,
               borderColor: "#070b14"
             }]
