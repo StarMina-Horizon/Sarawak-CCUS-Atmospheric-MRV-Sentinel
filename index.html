@@ -34,7 +34,7 @@
         🛰️
       </div>
       <div>
-        <h1 class="text-lg md:text-xl font-bold tracking-wide text-white">SARAWAK CCUS & ATMOSPHERIC MRV SENTINEL</h1>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide text-white">SARAWAK CARBON CAPTURE UTILIZATION STORAGE (CCUS) & ATMOSPHERIC MEASUREMENT REPORTING VERIFICATION (MRV) SENTINEL</h1>
         <p class="text-xs text-slate-400">NASA Earth Data (OCO-2/3, Giovanni, AIRS) & World Bank Decarbonisation Ledger</p>
       </div>
     </div>
@@ -160,7 +160,7 @@
     <section class="lg:col-span-5 bg-[#0d162d] border border-slate-800 rounded-xl p-4 flex flex-col shadow-lg">
       <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
         <div>
-          <h3 class="text-sm font-bold text-white">Atmospheric Carbon Concentration (XCO2)</h3>
+          <h3 class="text-sm font-bold text-white">Atmospheric Carbon Concentration (XCO₂)</h3>
           <p class="text-[11px] text-slate-400">NASA Giovanni Multi-Scale Observations</p>
         </div>
         
@@ -206,13 +206,13 @@
     </section>
   </main>
 
-  <!-- SECTORAL CO2 EMISSIONS BREAKDOWN (PURE CO2 ONLY) -->
+  <!-- SECTORAL CO2 EMISSIONS BREAKDOWN (CO2 ONLY) -->
   <section class="px-6 py-4">
     <div class="bg-[#0d162d] border border-slate-800 rounded-xl p-5 shadow-lg">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2 border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <span>📊</span> Pure CO₂ Emissions by Economic Sector (2019 Cumulative Baseline)
+            <span>📊</span> CO₂ Emissions by Economic Sector (2019 Cumulative Baseline)
           </h2>
           <p class="text-xs text-slate-400">Excludes non-CO₂ greenhouse gases (CH₄, N₂O) to isolate carbon capture mitigation targets for Sarawak CCUS</p>
         </div>
@@ -222,22 +222,22 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        <!-- DONUT CHART (PURE CO2 SHARE) -->
+        <!-- DONUT CHART (CO2 SHARE) -->
         <div class="lg:col-span-5 flex flex-col items-center justify-center">
           <div class="relative w-full max-w-[280px]" style="height: 250px;">
             <canvas id="sectorDonutChart"></canvas>
           </div>
-          <span class="text-[11px] text-slate-400 mt-2 font-mono">Total Pure CO₂ Volume (2019): ~269.5 MT CO₂</span>
+          <span class="text-[11px] text-slate-400 mt-2 font-mono">Total CO₂ Volume (2019): ~269.5 MT CO₂</span>
         </div>
 
-        <!-- SECTOR METRIC TABLE (PURE CO2 VOLUMES) -->
+        <!-- SECTOR METRIC TABLE (CO2 VOLUMES) -->
         <div class="lg:col-span-7 overflow-x-auto">
           <table class="w-full text-left text-xs border border-slate-800 rounded-lg overflow-hidden">
             <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold border-b border-slate-800">
               <tr>
                 <th class="p-3">Economic Sector</th>
                 <th class="p-3">CO₂ Share (%)</th>
-                <th class="p-3">Pure CO₂ Volume (MT CO₂)</th>
+                <th class="p-3">CO₂ Volume (MT CO₂)</th>
                 <th class="p-3">CCUS Abatement Strategy</th>
               </tr>
             </thead>
@@ -286,7 +286,7 @@
           </table>
 
           <p class="text-[10px] text-slate-400 italic mt-2.5 pt-2 border-t border-slate-800/80 leading-relaxed">
-            *Note: Values isolate pure carbon dioxide (<math class="text-cyan-400">CO₂</math>) emissions from the 2019 National GHG Inventory (UNFCCC BUR4 / World Bank), excluding non-CO₂ gases (methane & nitrous oxide). Energy and Industrial Point Sources produce ~75.6% of pure CO₂, establishing the direct operational capture mandate for the Kasawari offshore reservoir.
+            *Note: Values carbon dioxide (CO₂) emissions from the 2019 National GHG Inventory (UNFCCC BUR4 / World Bank), excluding non-CO₂ gases (methane & nitrous oxide). Energy and Industrial Point Sources produce ~75.6% of CO₂, establishing the direct operational capture mandate for the Kasawari offshore reservoir.
           </p>
         </div>
       </div>
